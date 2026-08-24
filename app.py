@@ -37,7 +37,7 @@ with tab1:
                     4. Provide a structured concise summary: Rhythm & Rate, Morphological Findings, Primary Impression, Recommended Action.
                     """
                     response = client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-1.5-flash',
                         contents=[prompt, img]
                     )
                     st.markdown("### AI Diagnostic Report")
@@ -64,7 +64,7 @@ with tab3:
                     client = genai.Client(api_key=api_key)
                     prompt = "Analyze this chest radiograph. Identify any consolidations, infiltrates, pleural effusion, pneumothorax, or cardiomegaly. Give a triage score and clinical impression."
                     response = client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-1.5-flash',
                         contents=[prompt, xray_img]
                     )
                     st.markdown("### Radiographic Findings")
