@@ -12,14 +12,6 @@ with st.sidebar:
     api_key = st.text_input("Enter Gemini API Key", type="password")
     st.caption("Get a free key from Google AI Studio")
 
-def get_best_model():
-    # Automatically finds the supported vision model available on your key
-    for m in genai.list_models():
-        if 'generateContent' in m.supported_generation_methods:
-            if 'flash' in m.name or 'pro' in m.name:
-                return m.name
-    return 'models/gemini-1.5-flash-latest'
-
 tab1, tab2, tab3 = st.tabs(["🫀 ECG Photo", "🫁 Cough Screener", "🩻 Chest X-Ray"])
 
 with tab1:
@@ -37,17 +29,16 @@ with tab1:
                 with st.spinner("Analyzing ECG trace and clinical parameters..."):
                     try:
                         genai.configure(api_key=api_key)
-                        model_name = get_best_model()
-                        model = genai.GenerativeModel(model_name)
+                        model = genai.GenerativeModel('models/gemini-3.6-flash')
                         
                         prompt = """
                         You are an expert clinical triage assistant. Analyze this 12-lead paper ECG image carefully:
                         1. Extract header details if legible (Heart rate, patient demographics).
-                        2. Analyze the rhythm, rate, intervals (PR, QRS, QT), and ST-T segment morphology.
+                        2. Analyze the rhythm, rate, intervals (PR, QRS, QT), and ST-T segment morphology across all leads.
                         3. Determine the Triage Level: (Level 1: Emergent / Level 2: Urgent / Level 3: Non-urgent / Normal).
                         4. Provide a structured clinical report: 
                            - **Rate & Rhythm**
-                           - **Lead-by-Lead Observations**
+                           - **Morphological Observations**
                            - **Primary Impression**
                            - **Recommended Triage Action**
                         """
@@ -77,8 +68,7 @@ with tab3:
                 with st.spinner("Screening radiograph for acute findings..."):
                     try:
                         genai.configure(api_key=api_key)
-                        model_name = get_best_model()
-                        model = genai.GenerativeModel(model_name)
+                        model = genai.GenerativeModel('models/gemini-3.6-flash')
                         
                         prompt = """
                         Analyze this chest radiograph. Check for consolidations, infiltrates, pleural effusion, pneumothorax, or cardiomegaly. 
