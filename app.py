@@ -7,10 +7,8 @@ st.set_page_config(page_title="TriageAI", page_icon="🩺", layout="centered")
 st.title("🫀 TriageAI: Multi-Modal Cardiopulmonary Hub")
 st.caption("AI-Assisted Triaging Decision Support System")
 
-with st.sidebar:
-    st.header("Settings")
-    api_key = st.text_input("Enter Gemini API Key", type="password")
-    st.caption("Get a free key from Google AI Studio")
+# Retrieve API Key permanently from Streamlit Secrets
+api_key = st.secrets.get("GEMINI_API_KEY", "")
 
 tab1, tab2, tab3 = st.tabs(["🫀 ECG Photo", "🫁 Cough Screener", "🩻 Chest X-Ray"])
 
@@ -24,7 +22,7 @@ with tab1:
         
         if st.button("Run AI Clinical Interpretation", key="ecg_btn"):
             if not api_key:
-                st.warning("Please enter your Gemini API Key in the sidebar.")
+                st.error("API Key not found in Streamlit Secrets. Please check app settings.")
             else:
                 with st.spinner("Analyzing ECG trace and clinical parameters..."):
                     try:
@@ -63,7 +61,7 @@ with tab3:
         st.image(xray_img, caption="Uploaded Radiograph", use_container_width=True)
         if st.button("Analyze Radiograph", key="xray_btn"):
             if not api_key:
-                st.warning("Please enter your Gemini API Key in the sidebar.")
+                st.error("API Key not found in Streamlit Secrets.")
             else:
                 with st.spinner("Screening radiograph for acute findings..."):
                     try:
