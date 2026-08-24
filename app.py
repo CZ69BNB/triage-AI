@@ -1,13 +1,12 @@
 import streamlit as st
 from PIL import Image
-from google import genai
+import google.generativeai as genai
 
 st.set_page_config(page_title="TriageAI", page_icon="🩺", layout="centered")
 
 st.title("🫀 TriageAI: Multi-Modal Cardiopulmonary Hub")
 st.caption("AI-Assisted Triaging Decision Support System")
 
-# Sidebar for API key input
 with st.sidebar:
     st.header("Settings")
     api_key = st.text_input("Enter Gemini API Key", type="password")
@@ -25,23 +24,25 @@ with tab1:
         
         if st.button("Run AI Clinical Interpretation", key="ecg_btn"):
             if not api_key:
-                st.warning("Please enter your Gemini API Key in the sidebar to run live analysis.")
+                st.warning("Please enter your Gemini API Key in the sidebar.")
             else:
                 with st.spinner("Analyzing ECG trace and clinical parameters..."):
-                    client = genai.Client(api_key=api_key)
-                    prompt = """
-                    You are an expert cardiologist AI. Analyze this 12-lead paper ECG image carefully:
-                    1. Read printed header values (Heart Rate, intervals, patient info if present).
-                    2. Check rhythm, rate, axis, PR interval, QRS complex, and ST-T segments across all leads.
-                    3. Determine the Triage Level: (Level 1: Emergent / Level 2: Urgent / Level 3: Non-urgent / Normal).
-                    4. Provide a structured concise summary: Rhythm & Rate, Morphological Findings, Primary Impression, Recommended Action.
-                    """
-                    response = client.models.generate_content(
-                        model='gemini-1.5-flash',
-                        contents=[prompt, img]
-                    )
-                    st.markdown("### AI Diagnostic Report")
-                    st.write(response.text)
+                    try:
+                        genai.configure(api_key=api_key)
+                        model = genai.GenerativeModel('gemini-1.5-flash')
+                        
+                        prompt = """
+                        You are an expert cardiologist AI. Analyze this 12-lead paper ECG image carefully:
+                        1. Read printed header values (Heart Rate, intervals, calibration if visible).
+                        2. Check rhythm, rate, axis, PR interval, QRS complex, and ST-T segments across all leads.
+                        3. Determine the Triage Level: (Level 1: Emergent / Level 2: Urgent / Level 3: Non-urgent / Normal).
+                        4. Provide a structured concise summary: Rhythm & Rate, Morphological Findings, Primary Impression, Recommended Action.
+                        """
+                        response = model.generate_content([prompt, img])
+                        st.markdown("### 📋 AI Diagnostic Report")
+                        st.markdown(response.text)
+                    except Exception as e:
+                        st.error(f"Error processing request: {e}")
 
 with tab2:
     st.subheader("2. Acoustic Respiratory Analysis")
@@ -61,11 +62,12 @@ with tab3:
                 st.warning("Please enter your Gemini API Key in the sidebar.")
             else:
                 with st.spinner("Screening radiograph for acute findings..."):
-                    client = genai.Client(api_key=api_key)
-                    prompt = "Analyze this chest radiograph. Identify any consolidations, infiltrates, pleural effusion, pneumothorax, or cardiomegaly. Give a triage score and clinical impression."
-                    response = client.models.generate_content(
-                        model='gemini-1.5-flash',
-                        contents=[prompt, xray_img]
-                    )
-                    st.markdown("### Radiographic Findings")
-                    st.write(response.text)
+                    try:
+                        genai.configure(api_key=api_key)
+                        model = genai.GenerativeModel('gemini-1.5-flash')
+                        prompt = "Analyze this chest radiograph. Identify any consolidations, infiltrates, pleural effusion, pneumothorax, or cardiomegaly. Give a triage score and clinical impression."
+                        response = model.generate_content([prompt, xray_img])
+                        st.markdown("### 🩻 Radiographic Findings")
+                        st.markdown(response.text)
+                    except Exception as e:
+                        st.error(f"Error processing request: {e}")
